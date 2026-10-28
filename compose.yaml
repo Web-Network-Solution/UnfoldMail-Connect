@@ -1,0 +1,80 @@
+services:
+  connect:
+    build: .
+    depends_on:
+      certificates:
+        condition: service_healthy
+    restart: unless-stopped
+    init: true
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    environment:
+      WORKER_URL: ${WORKER_URL:?Set the HTTPS webmail origin}
+      GATEWAY_SECRET: ${GATEWAY_SECRET:?Set the same secret as the Worker}
+      MAIL_HOSTNAME: ${MAIL_HOSTNAME:?Set the public protocol hostname}
+      TLS_CERT_FILE: /certs/fullchain.pem
+      TLS_KEY_FILE: /certs/privkey.pem
+      MAX_CONNECTIONS: ${MAX_CONNECTIONS:-4000}
+      MAX_CONNECTIONS_PER_IP: ${MAX_CONNECTIONS_PER_IP:-4000}
+      MAX_NEW_CONNECTIONS_PER_IP_MINUTE: ${MAX_NEW_CONNECTIONS_PER_IP_MINUTE:-6000}
+      IMAP_POLL_SECONDS: ${IMAP_POLL_SECONDS:-60}
+      MAX_UPSTREAM_REQUESTS: ${MAX_UPSTREAM_REQUESTS:-128}
+      MAX_TRANSFERS: ${MAX_TRANSFERS:-8}
+      SESSION_METADATA_MIB: ${SESSION_METADATA_MIB:-3072}
+      GOMEMLIMIT: 5GiB
+      GOMAXPROCS: "4"
+      ENABLE_POP3: ${ENABLE_POP3:-false}
+    ports:
+      - "993:1993"
+      - "465:1465"
+      - "995:1995"
+    volumes:
+      - "gateway-certs:/certs:ro"
+    mem_limit: 6g
+    cpus: 4
+    pids_limit: 256
+    ulimits:
+      nofile:
+        soft: 16384
+        hard: 16384
+    stop_grace_period: 30s
+    healthcheck:
+      test: [CMD, /unfoldmail-connect, healthcheck]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+
+  certificates:
+    image: certbot/certbot:v5.8.0
+    restart: unless-stopped
+    entrypoint: [/bin/sh, /deploy/certificates.sh]
+    environment:
+      MAIL_HOSTNAME: ${MAIL_HOSTNAME:?Set the public protocol hostname}
+      ACME_EMAIL: ${ACME_EMAIL:?Set a certificate contact email}
+    ports:
+      - "80:80"
+    volumes:
+      - "acme-state:/etc/letsencrypt"
+      - "gateway-certs:/certs"
+      - "./deployment:/deploy:ro"
+    healthcheck:
+      test: [CMD-SHELL, "test -s /certs/fullchain.pem && test -s /certs/privkey.pem"]
+      interval: 5s
+      timeout: 3s
+      retries: 60
+      start_period: 15s
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+
+volumes:
+  acme-state:
+  gateway-certs:

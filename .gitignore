@@ -1,0 +1,17 @@
+.git/
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.exe
+*.log
+/unfoldmail-connect
+/mail-protocol
+/bin/
+/dist/
+/coverage.out
+/docs/
+.agents/
+.codex/
+/certs/

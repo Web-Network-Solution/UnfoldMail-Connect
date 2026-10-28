@@ -1,0 +1,20 @@
+name: Check
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+      - run: go test -race ./...
+      - run: go vet ./...
+      - run: sh -n deployment/certificates.sh deployment/publish-certificates.sh
+      - run: docker compose --env-file .env.example config --quiet
+        env:
+          GATEWAY_SECRET: ci-only-not-a-real-secret-0123456789abcdef
+      - run: docker build -t unfoldmail-connect:test .

@@ -1,0 +1,14 @@
+.git
+.env
+.env.*
+*.pem
+*.key
+*.exe
+*.log
+bin
+dist
+coverage.out
+docs
+.agents
+.codex
+certs
