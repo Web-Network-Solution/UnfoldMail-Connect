@@ -15,6 +15,13 @@ IMAP account; it does not mean signing into gmail.com with an UnfoldMail account
 
 Source: [Web-Network-Solution/UnfoldMail-Connect](https://github.com/Web-Network-Solution/UnfoldMail-Connect).
 
+## Deploy on DigitalOcean
+
+[![Create DigitalOcean Droplet](deployment/digitalocean/button.svg)](https://cloud.digitalocean.com/droplets/new?appId=241490599&image=docker-20-04)
+
+Creates a Docker-ready server. Then follow the [guided Connect setup](deployment/digitalocean/README.md).
+This is not yet a dedicated UnfoldMail Connect Marketplace image.
+
 ## How it works
 
 Mail app -> TLS IMAP/SMTP -> UnfoldMail Connect -> HTTPS -> UnfoldMail Worker
@@ -43,7 +50,7 @@ provider templates are published and tested.
 
 | Target | Current path | Remaining work for a provider button |
 | --- | --- | --- |
-| DigitalOcean Droplet / other Linux VPS | Docker Compose on a dedicated server | Provisioning template or Marketplace image, setup form, and end-to-end test |
+| DigitalOcean Droplet / other Linux VPS | [Docker Droplet button and guided setup](deployment/digitalocean/README.md) | Provisioning template or Marketplace image, setup form, and end-to-end test |
 | AWS EC2 | Docker Compose on a dedicated instance | CloudFormation template, stable IP, networking, secure secret delivery, and hosted launch template |
 | Coolify | Compose deployment with the certificate arrangement adapted to the host | Reusable service template and certificate integration; existing proxies normally occupy port 80 |
 | Railway | Not a drop-in target for this Compose stack | Separate protocol services/proxies, custom public port settings in UnfoldMail, and a supported certificate lifecycle |

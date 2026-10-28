@@ -14,6 +14,7 @@ jobs:
       - run: go test -race ./...
       - run: go vet ./...
       - run: sh -n deployment/certificates.sh deployment/publish-certificates.sh
+      - run: bash -n deployment/digitalocean/setup.sh
       - run: docker compose --env-file .env.example config --quiet
         env:
           GATEWAY_SECRET: ci-only-not-a-real-secret-0123456789abcdef
